@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 import os
 import uuid
 
@@ -9,7 +9,7 @@ from flask import Flask, redirect, render_template, request, session, url_for
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from webtorkel import DB_URL, DataStore, GameEngine, RollOutcome
+from webtorkel import DB_URL, DataStore, GameEngine, PlayerStatus, RollOutcome
 
 APP_ROOT = Path(__file__).resolve().parent
 IMAGE_DIR = APP_ROOT / "static" / "images"
@@ -26,6 +26,9 @@ DB_SESSION = None
 
 GAMES: Dict[str, GameEngine] = {}
 LAST_OUTCOME: Dict[str, RollOutcome] = {}
+GAME_LOGS: Dict[str, List[str]] = {}
+LAST_STATUS: Dict[str, PlayerStatus] = {}
+GAME_OVER_LOGGED: set[str] = set()
 
 
 def load_base_data() -> Optional[DataStore]:
@@ -63,7 +66,50 @@ def get_game() -> Optional[GameEngine]:
     if game is None:
         game = GameEngine(data.clone())
         GAMES[game_id] = game
+        GAME_LOGS[game_id] = []
+        LAST_STATUS[game_id] = game.get_status()
+        GAME_OVER_LOGGED.discard(game_id)
     return game
+
+
+def _status_line(status) -> str:
+    return (
+        f"Status: name={status.name} xp={status.xp} gold={status.gold} "
+        f"form={status.form} companions={status.companions}"
+    )
+
+
+def _append_log_line(game_id: str, line: str) -> None:
+    GAME_LOGS.setdefault(game_id, []).append(line)
+
+
+def _log_outcome(game_id: str, outcome: RollOutcome) -> None:
+    _append_log_line(game_id, f"{outcome.table_id} {outcome.title}")
+    choice_text = outcome.choice_log or outcome.choice_raw
+    if choice_text:
+        _append_log_line(game_id, choice_text)
+
+    previous = LAST_STATUS.get(game_id)
+    if previous and (
+        previous.xp != outcome.status.xp
+        or previous.gold != outcome.status.gold
+        or previous.form != outcome.status.form
+        or previous.companions != outcome.status.companions
+    ):
+        _append_log_line(game_id, _status_line(outcome.status))
+    LAST_STATUS[game_id] = outcome.status
+    _append_log_line(game_id, "")
+
+
+def _log_game_over(game_id: str, status) -> None:
+    if game_id in GAME_OVER_LOGGED:
+        return
+    _append_log_line(game_id, _status_line(status))
+    _append_log_line(game_id, "")
+    _append_log_line(game_id, "Game over.")
+    _append_log_line(game_id, f"Final XP: {status.xp}")
+    _append_log_line(game_id, f"Final gold: {status.gold}")
+    GAME_OVER_LOGGED.add(game_id)
 
 
 def image_url(image_id: int) -> Optional[str]:
@@ -131,6 +177,9 @@ def create_app() -> Flask:
         outcome = game.roll()
         game_id = get_game_id()
         LAST_OUTCOME[game_id] = outcome
+        _log_outcome(game_id, outcome)
+        if outcome.game_over:
+            _log_game_over(game_id, outcome.status)
         return redirect(url_for("result"))
 
     @app.route("/result")
@@ -161,10 +210,13 @@ def create_app() -> Flask:
         game_id = get_game_id()
         outcome = LAST_OUTCOME.get(game_id)
         status = game.get_status()
+        _log_game_over(game_id, status)
+        log_text = "\n".join(GAME_LOGS.get(game_id, []))
         return render_template(
             "game_over.html",
             status=status,
             outcome=outcome,
+            log_text=log_text,
         )
 
     @app.post("/reset")
@@ -176,6 +228,9 @@ def create_app() -> Flask:
         game_id = get_game_id()
         GAMES[game_id] = GameEngine(data.clone())
         LAST_OUTCOME.pop(game_id, None)
+        GAME_LOGS.pop(game_id, None)
+        LAST_STATUS.pop(game_id, None)
+        GAME_OVER_LOGGED.discard(game_id)
         session.pop("intro_shown", None)
         session.pop("name_set", None)
         return redirect(url_for("table"))

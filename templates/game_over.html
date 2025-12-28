@@ -15,6 +15,12 @@
       <div>Final XP: {{ status.xp }}</div>
       <div>Final gold: {{ status.gold }}</div>
     </div>
+    {% if log_text %}
+    <div class="intro">
+      <h3>Logg</h3>
+      <pre>{{ log_text }}</pre>
+    </div>
+    {% endif %}
     <div class="actions">
       <form method="post" action="{{ url_for('reset') }}">
         <button class="btn primary" type="submit">Restart</button>
