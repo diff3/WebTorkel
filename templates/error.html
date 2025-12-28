@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="split">
+  <div class="panel">
+    <div class="meta-pill">Error</div>
+    <h1 class="table-title">Database unavailable</h1>
+    <p>{{ message }}</p>
+    <div class="actions">
+      <form method="get" action="{{ url_for('table') }}">
+        <button class="btn primary" type="submit">Retry</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

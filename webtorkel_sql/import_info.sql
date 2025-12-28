@@ -1,0 +1,15 @@
+USE webtorkel;
+INSERT INTO info_lines (line_index, text) VALUES (0, '- text innehåller alla tabbeller');
+INSERT INTO info_lines (line_index, text) VALUES (1, '- egenskaper innehåller alla hänvisningar [1]');
+INSERT INTO info_lines (line_index, text) VALUES (2, '');
+INSERT INTO info_lines (line_index, text) VALUES (3, '');
+INSERT INTO info_lines (line_index, text) VALUES (4, 'Tabellstruktur');
+INSERT INTO info_lines (line_index, text) VALUES (5, '');
+INSERT INTO info_lines (line_index, text) VALUES (6, '1: hänvisning');
+INSERT INTO info_lines (line_index, text) VALUES (7, '3: ny starttabell, 0 ingen modifiering');
+INSERT INTO info_lines (line_index, text) VALUES (8, '4: XP');
+INSERT INTO info_lines (line_index, text) VALUES (9, '5: XP');
+INSERT INTO info_lines (line_index, text) VALUES (10, '15: strid');
+INSERT INTO info_lines (line_index, text) VALUES (11, '');
+INSERT INTO info_lines (line_index, text) VALUES (12, 'motståndarKorrigering = motståndareEgenskaper [motståndare][0];');
+INSERT INTO info_lines (line_index, text) VALUES (13, 'motståndarErf = motståndareEgenskaper [motståndare][1];');

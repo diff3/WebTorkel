@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="split">
+  <div class="panel">
+    {% if name_locked %}
+    <div class="meta-pill">Table {{ view.table_id }}</div>
+    <h1 class="table-title">{{ view.display_title }}</h1>
+    {% else %}
+    <h1 class="table-title">Starta WebTorkel</h1>
+    {% endif %}
+
+    {% if intro_lines %}
+    <div class="intro">
+      <h3>Intro</h3>
+      <pre>{{ intro_lines | join('\n') }}</pre>
+    </div>
+    {% endif %}
+
+    {% if name_locked %}
+      {% if view.missing %}
+        <p>Missing table data.</p>
+      {% else %}
+        <ul class="options">
+          {% for option in view.options %}
+          <li class="option" style="--i: {{ loop.index0 }}">{{ option }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endif %}
+
+    {% if not name_locked %}
+    <form method="post" action="{{ url_for('set_name') }}" class="name-form">
+      <input name="name" type="text" value="{{ status.name }}" placeholder="Name">
+      <button class="btn primary" type="submit">Start game</button>
+    </form>
+    {% else %}
+    <div class="actions">
+      <form method="post" action="{{ url_for('roll') }}">
+        <button class="btn primary" type="submit">Roll</button>
+      </form>
+      <form method="post" action="{{ url_for('reset') }}">
+        <button class="btn" type="submit">New game</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="panel image-panel">
+    <div>
+      <div class="image-label">Bild</div>
+      <div class="image-frame">
+        {% if image_url %}
+        <img src="{{ image_url }}" alt="Scene image">
+        {% else %}
+        <div class="choice-text">No image available.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="split">
+  <div class="panel">
+    <div class="meta-pill">Game over</div>
+    <h1 class="table-title">The adventure is finished.</h1>
+    <div class="game-over">
+      <div>
+        Status: name={{ status.name }} xp={{ status.xp }} gold={{ status.gold }}
+        form={{ status.form }} companions={{ status.companions }}
+      </div>
+      {% if outcome %}
+      <div>Last roll: {{ outcome.choice_log or outcome.choice_raw }}</div>
+      {% endif %}
+      <div>Final XP: {{ status.xp }}</div>
+      <div>Final gold: {{ status.gold }}</div>
+    </div>
+    <div class="actions">
+      <form method="post" action="{{ url_for('reset') }}">
+        <button class="btn primary" type="submit">Restart</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

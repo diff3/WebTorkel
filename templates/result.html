@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="split">
+  <div class="panel">
+    <div class="meta-pill">Result</div>
+    <h1 class="table-title">{{ outcome.title }}</h1>
+
+    <div class="choice-text">Rolled {{ outcome.option }}: {{ choice_text }}</div>
+
+    {% if outcome.combat_text %}
+    <div class="combat">Combat: {{ outcome.combat_text }}</div>
+    {% endif %}
+
+    {% if outcome.game_over %}
+    <div class="game-over">
+      <strong>Game over.</strong>
+      <div>Final XP: {{ outcome.status.xp }}</div>
+      <div>Final gold: {{ outcome.status.gold }}</div>
+    </div>
+    {% endif %}
+
+    <div class="actions">
+      {% if outcome.game_over %}
+      <form method="post" action="{{ url_for('reset') }}">
+        <button class="btn primary" type="submit">Restart</button>
+      </form>
+      {% else %}
+      <form method="get" action="{{ url_for('table') }}">
+        <button class="btn primary" type="submit">Continue</button>
+      </form>
+      <form method="post" action="{{ url_for('reset') }}">
+        <button class="btn" type="submit">New game</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="panel image-panel">
+    <div>
+      <div class="image-label">Bild</div>
+      <div class="image-frame">
+        {% if image_url %}
+        <img src="{{ image_url }}" alt="Outcome image">
+        {% else %}
+        <div class="choice-text">No image available.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

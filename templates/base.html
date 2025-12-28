@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title or "WebTorkel" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='webtorkel.css') }}">
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="brand">
+        <div class="brand-title">WebTorkel</div>
+        <div class="brand-subtitle">Text-only adventure engine</div>
+      </div>
+      {% if status %}
+      <div class="status-card">
+        <div class="status-row"><span>Name</span><span>{{ status.name }}</span></div>
+        <div class="status-row"><span>Form</span><span>{{ status.form }}</span></div>
+        <div class="status-row"><span>XP</span><span>{{ status.xp }}</span></div>
+        <div class="status-row"><span>Gold</span><span>{{ status.gold }}</span></div>
+        <div class="status-row"><span>Companions</span><span>{{ status.companions }}</span></div>
+        {% if status.items %}
+        <div class="status-row"><span>Items</span><span>{{ status.items }}</span></div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </header>
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>
